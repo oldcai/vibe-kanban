@@ -71,6 +71,11 @@ pub fn validate_origin<B>(req: &mut Request<B>) -> Result<(), Response> {
         return Ok(());
     }
 
+    tracing::warn!(
+        "Origin validation failed: origin={:?}, host={:?}",
+        origin,
+        host
+    );
     Err(forbidden())
 }
 

@@ -112,11 +112,18 @@ async fn main() -> Result<(), VibeKanbanError> {
 
     if !cfg!(debug_assertions) {
         tracing::info!("Opening browser...");
+        // Use 127.0.0.1 for browser if host is 0.0.0.0 (which isn't a valid browser address)
+        let browser_host = if host == "0.0.0.0" {
+            "127.0.0.1".to_string()
+        } else {
+            host.clone()
+        };
         tokio::spawn(async move {
-            if let Err(e) = open_browser(&format!("http://127.0.0.1:{actual_port}")).await {
+            if let Err(e) = open_browser(&format!("http://{browser_host}:{actual_port}")).await {
                 tracing::warn!(
-                    "Failed to open browser automatically: {}. Please open http://127.0.0.1:{} manually.",
+                    "Failed to open browser automatically: {}. Please open http://{}:{} manually.",
                     e,
+                    browser_host,
                     actual_port
                 );
             }
