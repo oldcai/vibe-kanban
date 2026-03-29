@@ -403,7 +403,13 @@ pub async fn delete_task(
 
 pub fn router(deployment: &DeploymentImpl) -> Router<DeploymentImpl> {
     let task_id_router = Router::new()
-        .route("/", get(get_task).put(update_task).delete(delete_task))
+        .route(
+            "/",
+            get(get_task)
+                .put(update_task)
+                .patch(update_task)
+                .delete(delete_task),
+        )
         .layer(from_fn_with_state(deployment.clone(), load_task_middleware));
 
     let inner = Router::new()
