@@ -10,7 +10,7 @@ use axum::{
     http::StatusCode,
     middleware::from_fn_with_state,
     response::{IntoResponse, Json as ResponseJson},
-    routing::{delete, get, post, put},
+    routing::{get, post},
 };
 use db::models::{
     image::TaskImage,
@@ -402,13 +402,8 @@ pub async fn delete_task(
 }
 
 pub fn router(deployment: &DeploymentImpl) -> Router<DeploymentImpl> {
-    let task_actions_router = Router::new()
-        .route("/", put(update_task))
-        .route("/", delete(delete_task));
-
     let task_id_router = Router::new()
-        .route("/", get(get_task))
-        .merge(task_actions_router)
+        .route("/", get(get_task).put(update_task).delete(delete_task))
         .layer(from_fn_with_state(deployment.clone(), load_task_middleware));
 
     let inner = Router::new()
