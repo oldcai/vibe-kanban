@@ -56,6 +56,10 @@ pub struct Config {
     pub commit_reminder: bool,
     #[serde(default)]
     pub send_message_shortcut: SendMessageShortcut,
+    #[serde(default)]
+    pub jira_webhook_url: Option<String>,
+    #[serde(default)]
+    pub jira_webhook_secret: Option<String>,
 }
 
 impl Config {
@@ -85,6 +89,8 @@ impl Config {
             beta_workspaces_invitation_sent: false,
             commit_reminder: false,
             send_message_shortcut: SendMessageShortcut::default(),
+            jira_webhook_url: None,
+            jira_webhook_secret: None,
         }
     }
 
@@ -139,6 +145,8 @@ impl Default for Config {
             beta_workspaces_invitation_sent: false,
             commit_reminder: false,
             send_message_shortcut: SendMessageShortcut::default(),
+            jira_webhook_url: None,
+            jira_webhook_secret: None,
         }
     }
 }
