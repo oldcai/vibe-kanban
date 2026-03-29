@@ -647,6 +647,7 @@ pub async fn create_workspace_from_pr(
             "Created from PR #{}: {}",
             payload.pr_number, payload.pr_url
         )),
+        external_id: None,
         status: Some(TaskStatus::InProgress),
         parent_workspace_id: None,
         image_ids: None,

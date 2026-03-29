@@ -264,6 +264,11 @@ pub async fn update_task(
         Some(s) => Some(s),                     // Non-empty string = update description
         None => existing_task.description,      // Field omitted = keep existing
     };
+    let external_id = match payload.external_id {
+        Some(s) if s.trim().is_empty() => None, // Empty string = clear external_id
+        Some(s) => Some(s),                     // Non-empty string = update external_id
+        None => existing_task.external_id,      // Field omitted = keep existing
+    };
     let status = payload.status.unwrap_or(existing_task.status);
     let parent_workspace_id = payload
         .parent_workspace_id
@@ -275,6 +280,7 @@ pub async fn update_task(
         existing_task.project_id,
         title,
         description,
+        external_id,
         status,
         parent_workspace_id,
     )

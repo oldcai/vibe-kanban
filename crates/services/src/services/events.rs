@@ -7,6 +7,7 @@ use db::{
         task::Task, workspace::Workspace,
     },
 };
+use utils::assets::config_path;
 use serde_json::json;
 use sqlx::{Error as SqlxError, Sqlite, SqlitePool, decode::Decode, sqlite::SqliteOperation};
 use tokio::sync::RwLock;
@@ -291,6 +292,38 @@ impl EventService {
                                             _ => task_patch::replace(&task_with_status), // fallback
                                         };
                                         msg_store_for_hook.push_patch(patch);
+
+                                        // Dispatch webhook for tasks with external_id on updates
+                                        if matches!(hook.operation, SqliteOperation::Update)
+                                            && let Some(ref external_id) =
+                                                task_with_status.task.external_id
+                                        {
+                                            let task_clone = task_with_status.task.clone();
+                                            let external_id_clone = external_id.clone();
+                                            tokio::spawn(async move {
+                                                let config_file = config_path();
+                                                let config =
+                                                    crate::services::config::load_config_from_file(
+                                                        &config_file,
+                                                    )
+                                                    .await;
+                                                if let (Some(url), Some(secret)) = (
+                                                    config.jira_webhook_url.as_ref(),
+                                                    config.jira_webhook_secret.as_ref(),
+                                                ) {
+                                                    crate::services::webhook::dispatch_task_status_webhook(
+                                                        url,
+                                                        secret,
+                                                        task_clone.id,
+                                                        &external_id_clone,
+                                                        &task_clone.status,
+                                                        &task_clone.title,
+                                                    )
+                                                    .await;
+                                                }
+                                            });
+                                        }
+
                                         return;
                                     }
                                 }

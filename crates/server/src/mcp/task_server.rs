@@ -949,6 +949,7 @@ impl TaskServer {
         let payload = UpdateTask {
             title,
             description: expanded_description,
+            external_id: None,
             status,
             parent_workspace_id: None,
             image_ids: None,
